@@ -1,9 +1,13 @@
-import { Node } from "./node";
+import { Tower } from "./Tower";
 async function main() {
-    const node1 = new Node();
-    node1.setName("firstNode");
-    console.log(node1.getName());
-  
+
+    const tower1 = new Tower();
+    tower1.setName("tower1");
+    console.log(tower1.getName());
+    tower1.listDefenseStates();
+    tower1.attackDefense(0, .5);
+    tower1.listDefenseStates();
+
 }
 
 main();
