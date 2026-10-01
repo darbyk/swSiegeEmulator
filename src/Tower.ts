@@ -2,8 +2,11 @@ export class Tower {
     public static readonly NUMBER_OF_DEFENSES: number = 5;
     private name: string = "";
     private defenseList: boolean[];
+    private guild: string = "";
 
-    public constructor() {
+    public constructor(towerId: string, guild: string) {
+        this.guild = guild;
+        this.name = towerId;
         this.defenseList = new Array(Tower.NUMBER_OF_DEFENSES).fill(true);
     }
 
@@ -15,6 +18,10 @@ export class Tower {
         return this.name;
     }
 
+    public getGuild(): string {
+        return this.guild;
+    }
+
     public attackDefense(index: number, chanceToWin: number): void {
         if (index < 0 || index >= Tower.NUMBER_OF_DEFENSES) {
             throw new Error("Invalid defense index");
@@ -24,11 +31,13 @@ export class Tower {
         }
     }
 
-    public listDefenseStates(): boolean[] {
+    public listDefenseStates(): string {
+        let currentDefenses = "";
         this.defenseList.map((state, index) => {
-            console.log(`Defense ${index}: ${state ? "Intact" : "Beaten"}`);
+            currentDefenses += state ? "O" : "X";
+            // console.log(`Defense ${index}: ${state ? "Intact" : "Beaten"}`);
         });
-        return this.defenseList;
+        return currentDefenses;
     }
 
     private beatDefense(index: number): void {
