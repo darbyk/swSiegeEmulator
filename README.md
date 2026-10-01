@@ -1,6 +1,7 @@
-## This is suppose to be a SW Siege Emulatorso taht we can run ML algorithms against it.
+### Project overview
+ This is suppose to be a SW Siege Emulatorso taht we can run ML algorithms against it.
 
-# Steps for setup:
+## Steps for setup:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 brew install npm
@@ -10,18 +11,16 @@ confirm:
 node -v
 npm -v
 
-Projectx setup:
-npm init -y
-
-npm install -D typescript ts-node @types/node
-
+# Projectx setup:
+npm init -y  
+npm install -D typescript ts-node @types/node  
 npx tsc --init
 
 npm install --no-audit --no-fund
 
 
 
-Running project:
+# Running project:
 npm run build
 
 Initialize Git:
