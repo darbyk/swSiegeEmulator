@@ -1,12 +1,20 @@
+export interface TowerLocation { 
+    x: number;
+    y: number;
+}
+
 export class Tower {
     public static readonly NUMBER_OF_DEFENSES: number = 5;
     private name: string = "";
     private defenseList: boolean[];
     private guild: string = "";
+    private towerLocation: TowerLocation;
+    private connectedTowers: Tower[] = [];
 
-    public constructor(towerId: string, guild: string) {
+    public constructor(towerId: string, guild: string, location: TowerLocation) {
         this.guild = guild;
         this.name = towerId;
+        this.towerLocation = location;
         this.defenseList = new Array(Tower.NUMBER_OF_DEFENSES).fill(true);
     }
 
@@ -38,6 +46,17 @@ export class Tower {
             // console.log(`Defense ${index}: ${state ? "Intact" : "Beaten"}`);
         });
         return currentDefenses;
+    }
+
+    public connectTower(tower: Tower): void {
+        if (!this.connectedTowers.includes(tower)) {
+            this.connectedTowers.push(tower);
+            tower.connectTower(this); // Ensure bidirectional connection
+        }
+    }
+
+    public getConnectedTowers(): Tower[] {
+        return this.connectedTowers;
     }
 
     private beatDefense(index: number): void {
