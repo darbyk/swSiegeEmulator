@@ -1,0 +1,47 @@
+<main>
+  <h1>Towers</h1>
+  <button id="attack-tower" type="button">Attack tower</button>
+  <p id="status" aria-live="polite"></p>
+  <ul id="towers"></ul>
+</main>
+
+<script>
+  const towerList = document.querySelector("#towers");
+  const status = document.querySelector("#status");
+  const attackButton = document.querySelector("#attack-tower");
+
+  function renderTowers(towers) {
+    towerList.replaceChildren();
+    for (const tower of towers) {
+      const item = document.createElement("li");
+      item.textContent = `${tower.name} — ${tower.guild} — ${tower.defenses}`;
+      towerList.append(item);
+    }
+  }
+
+  async function loadTowers() {
+    const response = await fetch("/api/towers");
+    if (!response.ok) {
+      throw new Error("Could not load towers");
+    }
+    renderTowers(await response.json());
+  }
+
+  attackButton.addEventListener("click", async () => {
+    status.textContent = "Attacking...";
+    try {
+      const response = await fetch("/api/towers/first/attack", { method: "POST" });
+      if (!response.ok) {
+        throw new Error("Attack failed");
+      }
+      renderTowers(await response.json());
+      status.textContent = "The first tower's first defense was attacked.";
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  });
+
+  loadTowers().catch((error) => {
+    status.textContent = error.message;
+  });
+</script>

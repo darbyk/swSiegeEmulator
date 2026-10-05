@@ -1,14 +1,22 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
+import { Map } from "./Map";
 
 const app = express();
 const PORT: number = 3000;
+const gameMap = new Map();
+gameMap.initializeMap();
 
-// Middleware to parse JSON bodies
 app.use(express.json());
 
-// Sample GET Route with explicit types
-app.get('/', (req: Request, res: Response): void => {
-  res.status(200).json({ message: 'Hello from Node.js + Express + TypeScript server!' });
+app.use(express.static("public"));
+
+app.get("/api/towers", (_request, response) => {
+  response.json(gameMap.listTowers());
+});
+
+app.post("/api/towers/first/attack", (_request, response) => {
+  gameMap.getTower(0).attackDefense(0, 1);
+  response.json(gameMap.listTowers());
 });
 
 app.listen(PORT, (): void => {
