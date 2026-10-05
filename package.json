@@ -5,15 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "ts-node src/main.ts"
+    "build": "ts-node src/main.ts",
+    "build-dev": "ts-node src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^26.6.3",
     "ts-node": "^10.9.2",
-    "typescript": "^7.0.2"
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }
