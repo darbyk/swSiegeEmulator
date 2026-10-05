@@ -19,11 +19,12 @@ export class Map {
         return tower;  
     }
 
-    public listTowers(): { name: string; guild: string; defenses: string }[] {
+    public listTowers(): { number: number; name: string; guild: string; defenses: string }[] {
         this.TowerList.forEach((tower, index) => {
             console.log(`Tower ${index}: ${tower.getName()} -- Guild: ${tower.getGuild()} - Tower defenses: ${tower.listDefenseStates()}`);
         });
-        return this.TowerList.map((tower) => ({
+        return this.TowerList.map((tower, index) => ({
+            number: index + 1,
             name: tower.getName(),
             guild: tower.getGuild(),
             defenses: tower.listDefenseStates(),
