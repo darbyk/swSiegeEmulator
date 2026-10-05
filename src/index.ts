@@ -14,8 +14,20 @@ app.get("/api/towers", (_request, response) => {
   response.json(gameMap.listTowers());
 });
 
-app.post("/api/towers/first/attack", (_request, response) => {
-  gameMap.getTower(0).attackDefense(0, 1);
+app.post("/api/towers/:towerNumber/attack", (request, response) => {
+  const towerNumber = Number(request.params.towerNumber);
+  if (!Number.isInteger(towerNumber) || towerNumber < 1) {
+    response.status(400).json({ error: "Tower number must be a positive integer" });
+    return;
+  }
+
+  try {
+    gameMap.getTower(towerNumber - 1).attackDefense(0, 1);
+  } catch {
+    response.status(404).json({ error: "Tower not found" });
+    return;
+  }
+
   response.json(gameMap.listTowers());
 });
 

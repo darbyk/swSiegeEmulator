@@ -1,8 +1,61 @@
+<style>
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #101a23;
+    color: #ecf4f4;
+    font-family: system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .tower-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 16px;
+  }
+
+  .tower-card {
+    padding: 14px;
+    border: 1px solid #38505b;
+    background: #192833;
+  }
+
+  .tower-card img {
+    display: block;
+    width: 100%;
+    max-width: 60px;
+    aspect-ratio: 1;
+    object-fit: contain;
+    margin: 0 auto 10px;
+  }
+
+  .tower-card h2,
+  .tower-card p {
+    margin: 6px 0;
+  }
+
+  .tower-card h2 {
+    font-size: 12px;
+  }
+
+  .tower-status {
+    color: #9ee6d2;
+    font-size: 10px;
+  }
+
+  .tower-card button {
+    margin-top: 8px;
+  }
+</style>
+
 <main>
   <h1>Towers</h1>
-  <button id="attack-tower" type="button">Attack tower</button>
   <p id="status" aria-live="polite"></p>
-  <ul id="towers"></ul>
+  <div id="towers" class="tower-grid"></div>
 </main>
 
 <script>
@@ -13,9 +66,28 @@
   function renderTowers(towers) {
     towerList.replaceChildren();
     for (const tower of towers) {
-      const item = document.createElement("li");
-      item.textContent = `${tower.name} — ${tower.guild} — ${tower.defenses}`;
-      towerList.append(item);
+      const card = document.createElement("article");
+      card.className = "tower-card";
+
+      const image = document.createElement("img");
+      image.src = "/siegeTower.png";
+      image.alt = `Siege tower ${tower.name}`;
+
+      const title = document.createElement("h2");
+      title.textContent = `${tower.guild} — Tower ${tower.name} (#${tower.number})`;
+
+      const intactCount = [...tower.defenses].filter((state) => state === "O").length;
+      const status = document.createElement("p");
+      status.className = "tower-status";
+      status.textContent = `${intactCount} of ${tower.defenses.length} defenses intact`;
+
+      const attackButton = document.createElement("button");
+      attackButton.type = "button";
+      attackButton.textContent = `Attack Tower #${tower.number}`;
+      attackButton.addEventListener("click", () => attackTower(tower.number));
+
+      card.append(image, title, status, attackButton);
+      towerList.append(card);
     }
   }
 
@@ -27,19 +99,20 @@
     renderTowers(await response.json());
   }
 
-  attackButton.addEventListener("click", async () => {
-    status.textContent = "Attacking...";
+  async function attackTower(towerNumber) {
+    status.textContent = `Attacking tower #${towerNumber}...`;
     try {
-      const response = await fetch("/api/towers/first/attack", { method: "POST" });
+      const response = await fetch(`/api/towers/${towerNumber}/attack`, { method: "POST" });
       if (!response.ok) {
-        throw new Error("Attack failed");
+        const result = await response.json();
+        throw new Error(result.error || "Attack failed");
       }
       renderTowers(await response.json());
-      status.textContent = "The first tower's first defense was attacked.";
+      status.textContent = `Tower #${towerNumber} was attacked.`;
     } catch (error) {
       status.textContent = error.message;
     }
-  });
+  }
 
   loadTowers().catch((error) => {
     status.textContent = error.message;
