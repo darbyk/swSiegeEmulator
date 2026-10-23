@@ -30,6 +30,10 @@ export class Tower {
         return this.guild;
     }
 
+    public getLocation(): TowerLocation {
+        return { ...this.towerLocation };
+    }
+
     public attackDefense(index: number, chanceToWin: number): void {
         if (index < 0 || index >= Tower.NUMBER_OF_DEFENSES) {
             throw new Error("Invalid defense index");

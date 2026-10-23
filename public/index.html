@@ -11,63 +11,97 @@
     max-width: 1100px;
     margin: 0 auto;
   }
+  
+  .tower-board {
+    position: relative;
+    transform-origin: top left;
+  }
 
-  .tower-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 16px;
+  .map-viewport {
+    width: 100%;
+    overflow: hidden;
   }
 
   .tower-card {
-    padding: 14px;
+    position: absolute;
+    box-sizing: border-box;
+    width: 140px;
+    min-height: 150px;
+    padding: 6px;
     border: 1px solid #38505b;
     background: #192833;
+    text-align: center;
   }
 
   .tower-card img {
     display: block;
-    width: 100%;
-    max-width: 60px;
+    width: 40px;
     aspect-ratio: 1;
     object-fit: contain;
-    margin: 0 auto 10px;
+    margin: 0 auto 4px;
   }
 
   .tower-card h2,
   .tower-card p {
-    margin: 6px 0;
+    margin: 3px 0;
   }
 
   .tower-card h2 {
-    font-size: 12px;
+    font-size: 0.75rem;
   }
 
   .tower-status {
     color: #9ee6d2;
-    font-size: 10px;
+    font-size: 0.65rem;
   }
 
   .tower-card button {
-    margin-top: 8px;
+    max-width: 100%;
+    margin-top: 4px;
+    padding: 3px;
+    font-size: 0.65rem;
   }
 </style>
 
 <main>
   <h1>Towers</h1>
   <p id="status" aria-live="polite"></p>
-  <div id="towers" class="tower-grid"></div>
+  <div class="map-viewport">
+    <div id="towers" class="tower-board"></div>
+  </div>
 </main>
 
 <script>
   const towerList = document.querySelector("#towers");
   const status = document.querySelector("#status");
-  const attackButton = document.querySelector("#attack-tower");
+  const mapViewport = document.querySelector(".map-viewport");
+  let currentTowers = [];
+
+  function fitMapToViewport() {
+    if (currentTowers.length === 0) {
+      return;
+    }
+
+    const cardWidth = 140;
+    const cardHeight = 150;
+    const boardWidth = Math.max(...currentTowers.map((tower) => tower.location.x + cardWidth)) + 12;
+    const boardHeight = Math.max(...currentTowers.map((tower) => tower.location.y + cardHeight)) + 12;
+    const scale = Math.min(1, mapViewport.clientWidth / boardWidth);
+
+    towerList.style.width = `${boardWidth}px`;
+    towerList.style.height = `${boardHeight}px`;
+    towerList.style.transform = `scale(${scale})`;
+    mapViewport.style.height = `${boardHeight * scale}px`;
+  }
 
   function renderTowers(towers) {
+    currentTowers = towers;
     towerList.replaceChildren();
     for (const tower of towers) {
       const card = document.createElement("article");
       card.className = "tower-card";
+      card.style.left = `${tower.location.x}px`;
+      card.style.top = `${tower.location.y}px`;
 
       const image = document.createElement("img");
       image.src = "/siegeTower.png";
@@ -77,19 +111,23 @@
       title.textContent = `${tower.guild} — Tower ${tower.name} (#${tower.number})`;
 
       const intactCount = [...tower.defenses].filter((state) => state === "O").length;
-      const status = document.createElement("p");
-      status.className = "tower-status";
-      status.textContent = `${intactCount} of ${tower.defenses.length} defenses intact`;
+      const towerStatus = document.createElement("p");
+      towerStatus.className = "tower-status";
+      towerStatus.textContent = `${intactCount}/${tower.defenses.length} defenses`;
 
       const attackButton = document.createElement("button");
       attackButton.type = "button";
-      attackButton.textContent = `Attack Tower #${tower.number}`;
+      attackButton.textContent = "Attack";
       attackButton.addEventListener("click", () => attackTower(tower.number));
 
-      card.append(image, title, status, attackButton);
+      card.append(image, title, towerStatus, attackButton);
       towerList.append(card);
     }
+
+    fitMapToViewport();
   }
+
+  window.addEventListener("resize", fitMapToViewport);
 
   async function loadTowers() {
     const response = await fetch("/api/towers");
